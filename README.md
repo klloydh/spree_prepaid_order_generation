@@ -15,7 +15,7 @@ Installation
 
 Add the gem to your Gemfile:
 
-    gem 'spree_subscriptions', github: 'DynamoMTL/spree_subscriptions.git'
+    gem 'spree_subscriptions', github: 'DynamoMTL/spree_subscriptions'
     bundle install
 
 Run the generator and the included migrations:
