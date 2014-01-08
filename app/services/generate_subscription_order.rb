@@ -122,5 +122,52 @@ class GenerateSubscriptionOrder
     subscription.credit_card = subscription.last_order.payments.where('amount > 0').where(state: 'completed').last.source
     subscription.credit_card
   end
+
+  def prepaid
+      sub = @subscription
+      begin
+        previous_order = sub.last_order
+        next_order = sub.orders.build({
+          user: previous_order.user,
+          email: previous_order.email,
+          repeat_order: true,
+
+          bill_address: sub.bill_address,
+          ship_address: sub.ship_address
+
+        }, without_protection: true)
+
+        next_order.save!
+
+        order_populator = ::Spree::OrderPopulator.new(next_order, ::Spree::Config[:currency])
+
+        variants = previous_order.line_items.inject({}) do |hash, li|
+          if li.variant.product.subscribable_variants.include? li.variant
+            hash[li.variant.id] = li.quantity
+          end
+
+          hash
+        end
+
+        order_populator.populate({variants: variants})
+
+        transition_order_from_cart_to_address!(next_order)
+        transition_order_from_address_to_delivery!(next_order)
+        transition_order_from_delivery_to_payment!(next_order)
+
+        transition_order_from_payment_to_confirm!(next_order)
+        transition_order_from_confirm_to_complete!(next_order, sub)
+        sub.decrement_prepaid_duration!
+
+        puts "Order #{next_order.number} created for subscription ##{sub.id}."
+        return true
+      rescue => e
+        ::SubscriptionLog.create(order_id: next_order.id, reason: e.to_s)
+        sub.failure_count += 1
+        sub.save
+        puts "#{e}"
+        puts "Error Creating Order for #{sub.id}. #{e}"
+    end
+  end
 end
 
