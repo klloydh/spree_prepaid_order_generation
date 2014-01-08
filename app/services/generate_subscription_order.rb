@@ -167,7 +167,7 @@ class GenerateSubscriptionOrder
         sub.save
         puts "#{e}"
         puts "Error Creating Order for #{sub.id}. #{e}"
-    end
+      end
   end
 end
 
