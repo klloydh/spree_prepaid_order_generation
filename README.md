@@ -2,9 +2,9 @@ Spree Subscriptions
 ==================
 
 This extension allows for administrators to mark certain products as
-'susbscribable'. Products marked as such will allow shopers to decide to
+'susbscribable'. Products marked as such will allow shoppers to decide to
 create a subscription to automatically have those items re-shipped to
-them at the interval of their chosing. 
+them at the interval of their choosing. 
 
 Features
 =======
